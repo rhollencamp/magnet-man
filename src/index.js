@@ -1,9 +1,9 @@
-import Phaser from "phaser";
+import Phaser from 'phaser';
 
-var config = {
+var game = new Phaser.Game({
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
+  width: 640,
+  height: 480,
   physics: {
     default: "arcade",
     arcade: {
@@ -12,10 +12,11 @@ var config = {
   },
   scene: {
     preload: preload,
-    create: create
-  }
-};
-var game = new Phaser.Game(config);
+    create: create,
+    resize: resize
+  },
+  canvas: document.getElementsByTagName('canvas')[0]
+});
 function preload() {
   this.load.setBaseURL("https://labs.phaser.io");
   this.load.image("sky", "assets/skies/space3.png");
@@ -35,4 +36,21 @@ function create() {
   logo.setBounce(1, 1);
   logo.setCollideWorldBounds(true);
   emitter.startFollow(logo);
+
+  this.events.on('resize', resize, this);
 }
+function resize(width, height) {
+  if (width === undefined) { width = this.sys.game.config.width; }
+  if (height === undefined) { height = this.sys.game.config.height; }
+
+  this.physics.world.bounds.width = width;
+  this.physics.world.bounds.height = height;
+
+  this.cameras.resize(width, height);
+}
+
+window.addEventListener('resize', function (event) {
+  var width = document.querySelector('div.card-body').clientWidth;
+  var height = document.querySelector('div.card-body').clientHeight;
+  game.resize(width, height);
+}, false);
